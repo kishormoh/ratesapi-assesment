@@ -1,0 +1,5 @@
+validations/ValidationResponse.class
+curdOperations/GetResponseTest.class
+client/RatesApiClient.class
+validations/Assertions.class
+validations/BaseValue.class

@@ -1,6 +1,6 @@
 package validations;
 
-import curdOperations.GetResponse;
+import curdOperations.GetResponseTest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
@@ -14,15 +14,18 @@ public class Assertions {
     private static String baseValueFromResponse;
     private static Map<String, Float> extractRates;
 
-    public static void responseAssertions(Response validatableResponse) {
+    public static void responseAssertions(Response validatableResponse,String baseName) {
         jsonPath = validatableResponse.jsonPath();
         baseValueFromResponse = jsonPath.get("base");
         extractRates = jsonPath.get("rates");
         assertThat(validatableResponse.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-        assertThat(GetResponse.getRequestHeaders().equals(ValidationResponse.headersValidator(validatableResponse)));
-        assertThat(baseValueFromResponse.equals(BaseValue.EUR));
-        ValidationResponse.responseTime_thenOK(validatableResponse);
+        if(baseName.equals("")){
+            assertThat(baseValueFromResponse.equals(BaseValue.EUR.toString())).isTrue();
+        }else {
+            assertThat(baseValueFromResponse.equals(baseName)).isTrue();
+        }
         assertThat(extractRates == null).isFalse();
-        assertThat(extractRates.size() == 32);
+        assertThat(extractRates.size() != 0 ).isTrue();
+        ValidationResponse.responseTime_thenOK(validatableResponse);
     }
 }
