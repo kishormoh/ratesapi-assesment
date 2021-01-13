@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import validations.Assertions;
-import validations.BaseValue;
+import validations.RatesValue;
 import validations.ValidationResponse;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -24,7 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetResponseTest {
 
+    private static String errorResponse = "day is out of range for month";
     private RatesApiClient ratesApiClient = new RatesApiClient();
+    private static String errorResponseForSymbols="Symbols 'EUR,BRL' are invalid for date 2021-01-13.";
 
     public static Map<String, String> getRequestHeaders() {
         Map<String, String> headers = new HashMap<>();
@@ -35,37 +37,72 @@ public class GetResponseTest {
 
     private static Stream<Arguments> baseCurrencyValues() {
         return Stream.of(
-                Arguments.of(BaseValue.USD.toString()),
-                Arguments.of(BaseValue.EUR.toString())
+                Arguments.of(RatesValue.USD.toString()),
+                Arguments.of(RatesValue.HKD.toString())
         );
     }
 
-    @ParameterizedTest (name = "BaseValue Type: {0}")
+    private static Stream<Arguments> symbolAndBaseValues() {
+        return Stream.of(
+                Arguments.of(RatesValue.THB.toString(), RatesValue.GBP.toString()),
+                Arguments.of(RatesValue.USD.toString(), RatesValue.GBP.toString())
+        );
+    }
+
+    @ParameterizedTest(name = "BaseValue Type: {0}")
     @MethodSource("baseCurrencyValues")
-    @DisplayName("Get response for latest and validating responses")
-   public void test1(String baseName){
+    @DisplayName("Get response for latest and validating responses with base")
+    public void test1(String baseName) {
 
         Response validatableResponse =
-                ratesApiClient.endPoints("latest?base="+baseName).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
+                ratesApiClient.endPoints("latest?base=" + baseName).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
 
-        Assertions.responseAssertions(validatableResponse,baseName);
-        System.out.println(validatableResponse.body().asString());
-
+        Assertions.validateRates(validatableResponse);
+        Assertions.validateBase(validatableResponse, baseName);
+        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateResponseCode(validatableResponse);
+        Assertions.validateResponseTime(validatableResponse);
     }
+
+    @ParameterizedTest(name = "BaseValue Type: {0} and symbolValue: {1}")
+    @MethodSource("symbolAndBaseValues")
+    @DisplayName("Get response for latest and validating responses with symbols")
+    public void test5(String symbolname_1, String symbolname) {
+        String urlEndpoint = "latest?symbols={0},{1}";
+        urlEndpoint = urlEndpoint.replace("{0}", symbolname_1).replace("{1}", symbolname);
+
+        Response validatableResponse =
+                ratesApiClient.endPoints(urlEndpoint).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
+        Assertions.validateRates(validatableResponse);
+        Assertions.validateSymbol(validatableResponse, symbolname_1);
+        Assertions.validateBase(validatableResponse, "");
+        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateResponseCode(validatableResponse);
+        Assertions.validateResponseTime(validatableResponse);
+    }
+
     @Test
     @DisplayName("Get response for future date and validate against present date and other responses")
     public void test2() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2021-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        Assertions.responseAssertions(validatableResponse,"");
+        Assertions.validateRates(validatableResponse);
+        Assertions.validateResponseTime(validatableResponse);
+        Assertions.validateBase(validatableResponse, "");
+        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateResponseCode(validatableResponse);
     }
     @Test
     @DisplayName("Get response for Back date and validate against responses")
-    public void test4(){
+    public void test4() {
         float value = (float) 36.641;
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        Assertions.responseAssertions(validatableResponse,"");
+        Assertions.validateRates(validatableResponse);
+        Assertions.validateResponseTime(validatableResponse);
+        Assertions.validateBase(validatableResponse, "");
+        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateResponseCode(validatableResponse);
     }
 
     @Test
@@ -81,8 +118,16 @@ public class GetResponseTest {
         extractRates = jsonPath.get("rates");
         assertThat(validatableResponse.getStatusCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
         assertThat(getRequestHeaders().equals(ValidationResponse.headersValidator(validatableResponse)));
-        assertThat(baseValueFromResponse.equals(BaseValue.ERRORRESPONSE));
-        ValidationResponse.responseTime_thenOK(validatableResponse);
+        assertThat(baseValueFromResponse.equals(errorResponse));
+        Assertions.validateResponseTime(validatableResponse);
         assertThat(extractRates == null).isTrue();
+    }
+    @DisplayName("Get response for latest and validating responses with symbols and dates")
+    @Test
+    public void test6() {
+        Response validatableResponse =
+                ratesApiClient.endPoints("2010-01-12?symbols=EUR,BLR").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
+        assertThat(validatableResponse.getStatusCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
+        assertThat(getRequestHeaders().equals(ValidationResponse.headersValidator(validatableResponse)));
     }
 }

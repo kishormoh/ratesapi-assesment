@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum BaseValue {
+public enum RatesValue {
     EUR("EUR"),
     GBP("GBP"),
     HKD("HKD"),
@@ -37,8 +37,7 @@ public enum BaseValue {
     KRW("KRW"),
     USD("USD"),
     HUF("HUF"),
-    AUD("AUD"),
-    ERRORRESPONSE("day is out of range for month");
+    AUD("AUD");
 
     @Getter
     private String baseName;
