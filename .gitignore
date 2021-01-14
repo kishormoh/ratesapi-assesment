@@ -5,3 +5,12 @@
 *.zip
 *.DS_Store
 *.idea/ratesapi-assesment.iml
+#IDE
+.idea/*
+!.idea/codeStyles/
+!.idea/runConfigurations/
+!.idea/inspectionProfiles/
+*.iml
+
+#Java
+**/target
