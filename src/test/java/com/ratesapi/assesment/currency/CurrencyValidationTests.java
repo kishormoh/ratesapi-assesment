@@ -1,4 +1,4 @@
-package com.ratesapi.assesment.getResponses;
+package com.ratesapi.assesment.currency;
 
 import com.ratesapi.assesment.client.RatesApiClient;
 import io.restassured.path.json.JsonPath;
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GetResponseTest {
+public class CurrencyValidationTests {
     private static final String errorResponse = "day is out of range for month";
     private static final String errorResponseForSymbols = "Symbols 'EUR,BRL' are invalid for date 2021-01-13.";
     RatesApiClient ratesApiClient = new RatesApiClient();
@@ -49,7 +49,7 @@ public class GetResponseTest {
 
     @DisplayName("Get response for latest rates")
     @Test
-    public void valid_Url_WithEndPointAsLatest_ValidateResponses() {
+    public void validUrlWithEndPointAsLatestValidateResponses() {
 
         Response validatableResponse =
                 ratesApiClient.endPoints("latest").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
@@ -64,7 +64,7 @@ public class GetResponseTest {
     @ParameterizedTest(name = "BaseValue Type: {0}")
     @MethodSource("baseCurrencyValues")
     @DisplayName("Get response for latest and validating responses with base")
-    public void valid_Url_WithEndPointAsLatest_AndBase_ValidateResponses(String baseName) {
+    public void validUrlWithEndPointAsLatestAndBaseValidateResponses(String baseName) {
 
         Response validatableResponse =
                 ratesApiClient.endPoints("latest?base=" + baseName).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
@@ -79,7 +79,7 @@ public class GetResponseTest {
     @ParameterizedTest(name = "BaseValue Type: {0} and symbolValue: {1}")
     @MethodSource("symbolAndBaseValues")
     @DisplayName("Get response for latest and validating responses with symbols")
-    public void valid_Url_WithEndPointAsSymbols_ValidateResponses(String symbolname_1, String symbolname) {
+    public void validUrlWithEndPointAsSymbolsValidateResponses(String symbolname_1, String symbolname) {
         String urlEndpoint = "latest?symbols={0},{1}";
         urlEndpoint = urlEndpoint.replace("{0}", symbolname_1).replace("{1}", symbolname);
 
@@ -95,7 +95,7 @@ public class GetResponseTest {
 
     @Test
     @DisplayName("Get response for future date and validate against present date and other responses")
-    public void getResponseForFutureDate_And_Validate_the_dateAs_latest() {
+    public void getResponseForFutureDateAndValidateThedateAsLatest() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2021-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
         Assertions.validateRates(validatableResponse);
@@ -107,7 +107,7 @@ public class GetResponseTest {
 
     @Test
     @DisplayName("Get response for Back date and validate against responses")
-    public void getResponseForBackDate_And_Validate_Rate() {
+    public void getResponseForBackDateAndValidateRate() {
         float value = (float) 36.641;
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
@@ -120,7 +120,7 @@ public class GetResponseTest {
 
     @Test
     @DisplayName("Get response for invalid date LEAP year and validate against Error")
-    public void validateAgainst_leapYearAndInvalidUrl_ShouldThrowError_validatingError() {
+    public void validateAgainstLeapYearAndInvalidUrlShouldThrowErrorvalidatingError() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-2-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
         JsonPath jsonPath = validatableResponse.jsonPath();
@@ -135,7 +135,7 @@ public class GetResponseTest {
 
     @DisplayName("Get response for latest and validating responses with symbols and dates")
     @Test
-    public void validate_Against_invalidSymbols() {
+    public void validateAgainstInvalidSymbols() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2010-01-12?symbols=EUR,BRL").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
         JsonPath jsonPath = validatableResponse.jsonPath();
