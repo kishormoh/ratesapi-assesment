@@ -22,9 +22,9 @@ import org.junit.jupiter.api.DisplayName;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetResponseTest {
-    RatesApiClient ratesApiClient=new RatesApiClient();
-    private static String errorResponse = "day is out of range for month";
-    private static String errorResponseForSymbols="Symbols 'EUR,BRL' are invalid for date 2021-01-13.";
+    private static final String errorResponse = "day is out of range for month";
+    private static final String errorResponseForSymbols = "Symbols 'EUR,BRL' are invalid for date 2021-01-13.";
+    RatesApiClient ratesApiClient = new RatesApiClient();
 
     public static Map<String, String> getRequestHeaders() {
         Map<String, String> headers = new HashMap<>();
@@ -104,13 +104,13 @@ public class GetResponseTest {
         Assertions.validateDateInResponse(validatableResponse);
         Assertions.validateResponseCode(validatableResponse);
     }
+
     @Test
     @DisplayName("Get response for Back date and validate against responses")
     public void getResponseForBackDate_And_Validate_Rate() {
         float value = (float) 36.641;
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        System.out.println(validatableResponse.body().asString());
         Assertions.validateRates(validatableResponse);
         Assertions.validateResponseTime(validatableResponse);
         Assertions.validateBase(validatableResponse, "");
@@ -121,27 +121,27 @@ public class GetResponseTest {
     @Test
     @DisplayName("Get response for invalid date LEAP year and validate against Error")
     public void validateAgainst_leapYearAndInvalidUrl_ShouldThrowError_validatingError() {
-        JsonPath jsonPath;
-        String baseValueFromResponse;
-        Map<String, Float> extractRates;
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-2-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        jsonPath = validatableResponse.jsonPath();
-        baseValueFromResponse = jsonPath.get("error");
-        extractRates = jsonPath.get("rates");
+        JsonPath jsonPath = validatableResponse.jsonPath();
+        String  baseValueFromResponse = jsonPath.get("error");
+        Map<String, Float> extractRates = jsonPath.get("rates");
         assertThat(validatableResponse.getStatusCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
         assertThat(getRequestHeaders().equals(ValidationResponse.headersValidator(validatableResponse)));
         assertThat(baseValueFromResponse.equals(errorResponse));
         Assertions.validateResponseTime(validatableResponse);
         assertThat(extractRates).isNull();
     }
+
     @DisplayName("Get response for latest and validating responses with symbols and dates")
     @Test
     public void validate_Against_invalidSymbols() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2010-01-12?symbols=EUR,BRL").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        System.out.println(validatableResponse.body().asString());
+        JsonPath jsonPath = validatableResponse.jsonPath();
+        String  baseValueFromResponse = jsonPath.get("error");
         assertThat(validatableResponse.getStatusCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
         assertThat(getRequestHeaders().equals(ValidationResponse.headersValidator(validatableResponse)));
+        assertThat(baseValueFromResponse.equals(errorResponseForSymbols));
     }
 }
