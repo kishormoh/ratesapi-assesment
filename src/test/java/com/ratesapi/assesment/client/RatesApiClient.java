@@ -1,4 +1,4 @@
-package client;
+package com.ratesapi.assesment.client;
 
 import io.restassured.response.ValidatableResponse;
 

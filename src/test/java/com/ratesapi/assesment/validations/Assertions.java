@@ -1,4 +1,4 @@
-package validations;
+package com.ratesapi.assesment.validations;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;

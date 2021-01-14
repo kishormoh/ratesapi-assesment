@@ -1,4 +1,4 @@
-package validations;
+package com.ratesapi.assesment.validations;
 
 import java.util.Arrays;
 import java.util.HashMap;

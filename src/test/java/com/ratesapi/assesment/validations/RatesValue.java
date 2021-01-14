@@ -1,4 +1,4 @@
-package validations;
+package com.ratesapi.assesment.validations;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
