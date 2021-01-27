@@ -36,7 +36,7 @@ public class CurrencyValidationTests {
     private static Stream<Arguments> baseCurrencyValues() {
         return Stream.of(
                 Arguments.of(RatesValue.USD.toString()),
-                Arguments.of(RatesValue.HKD.toString())
+                Arguments.of(RatesValue.AUD.toString())
         );
     }
 
