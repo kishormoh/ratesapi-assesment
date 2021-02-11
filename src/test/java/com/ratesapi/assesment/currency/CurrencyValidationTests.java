@@ -1,6 +1,7 @@
 package com.ratesapi.assesment.currency;
 
 import com.ratesapi.assesment.client.RatesApiClient;
+import com.ratesapi.assesment.validations.ResponsePojo;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
@@ -25,6 +26,8 @@ public class CurrencyValidationTests {
     private static final String errorResponse = "day is out of range for month";
     private static final String errorResponseForSymbols = "Symbols 'EUR,BRL' are invalid for date 2021-01-13.";
     RatesApiClient ratesApiClient = new RatesApiClient();
+    ResponsePojo responsePojo;
+    JsonPath jsonPath ;
 
     public static Map<String, String> getRequestHeaders() {
         Map<String, String> headers = new HashMap<>();
@@ -54,9 +57,12 @@ public class CurrencyValidationTests {
         Response validatableResponse =
                 ratesApiClient.endPoints("latest").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
 
-        Assertions.validateRates(validatableResponse);
-        Assertions.validateBase(validatableResponse, "");
-        Assertions.validateDateInResponse(validatableResponse);
+        jsonPath=validatableResponse.jsonPath();
+        responsePojo=new ResponsePojo(jsonPath.get("base"),jsonPath.get("date"),jsonPath.get("rates"));
+
+        Assertions.validateRates(responsePojo);
+        Assertions.validateBase(responsePojo, "");
+        Assertions.validateDateInResponse(responsePojo);
         Assertions.validateResponseCode(validatableResponse);
         Assertions.validateResponseTime(validatableResponse);
     }
@@ -69,9 +75,12 @@ public class CurrencyValidationTests {
         Response validatableResponse =
                 ratesApiClient.endPoints("latest?base=" + baseName).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
 
-        Assertions.validateRates(validatableResponse);
-        Assertions.validateBase(validatableResponse, baseName);
-        Assertions.validateDateInResponse(validatableResponse);
+        jsonPath=validatableResponse.jsonPath();
+        responsePojo=new ResponsePojo(jsonPath.get("base"),jsonPath.get("date"),jsonPath.get("rates"));
+
+        Assertions.validateRates(responsePojo);
+        Assertions.validateBase(responsePojo, baseName);
+        Assertions.validateDateInResponse(responsePojo);
         Assertions.validateResponseCode(validatableResponse);
         Assertions.validateResponseTime(validatableResponse);
     }
@@ -85,10 +94,14 @@ public class CurrencyValidationTests {
 
         Response validatableResponse =
                 ratesApiClient.endPoints(urlEndpoint).withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        Assertions.validateRates(validatableResponse);
-        Assertions.validateSymbol(validatableResponse, symbolname_1);
-        Assertions.validateBase(validatableResponse, "");
-        Assertions.validateDateInResponse(validatableResponse);
+
+        jsonPath=validatableResponse.jsonPath();
+        responsePojo=new ResponsePojo(jsonPath.get("base"),jsonPath.get("date"),jsonPath.get("rates"));
+
+        Assertions.validateRates(responsePojo);
+        Assertions.validateSymbol(responsePojo, symbolname_1);
+        Assertions.validateBase(responsePojo, "");
+        Assertions.validateDateInResponse(responsePojo);
         Assertions.validateResponseCode(validatableResponse);
         Assertions.validateResponseTime(validatableResponse);
     }
@@ -98,10 +111,14 @@ public class CurrencyValidationTests {
     public void getResponseForFutureDateAndValidateThedateAsLatest() {
         Response validatableResponse =
                 ratesApiClient.endPoints("2021-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        Assertions.validateRates(validatableResponse);
+
+        jsonPath=validatableResponse.jsonPath();
+        responsePojo=new ResponsePojo(jsonPath.get("base"),jsonPath.get("date"),jsonPath.get("rates"));
+
+        Assertions.validateRates(responsePojo);
         Assertions.validateResponseTime(validatableResponse);
-        Assertions.validateBase(validatableResponse, "");
-        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateBase(responsePojo, "");
+        Assertions.validateDateInResponse(responsePojo);
         Assertions.validateResponseCode(validatableResponse);
     }
 
@@ -111,10 +128,14 @@ public class CurrencyValidationTests {
         float value = (float) 36.641;
         Response validatableResponse =
                 ratesApiClient.endPoints("2019-3-30").withHeaders(getRequestHeaders()).callGetRatesAPI().extract().response();
-        Assertions.validateRates(validatableResponse);
+
+        jsonPath=validatableResponse.jsonPath();
+        responsePojo=new ResponsePojo(jsonPath.get("base"),jsonPath.get("date"),jsonPath.get("rates"));
+
+        Assertions.validateRates(responsePojo);
         Assertions.validateResponseTime(validatableResponse);
-        Assertions.validateBase(validatableResponse, "");
-        Assertions.validateDateInResponse(validatableResponse);
+        Assertions.validateBase(responsePojo, "");
+        Assertions.validateDateInResponse(responsePojo);
         Assertions.validateResponseCode(validatableResponse);
     }
 

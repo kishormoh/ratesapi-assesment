@@ -1,45 +1,34 @@
 package com.ratesapi.assesment.validations;
 
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Assertions {
-    private static JsonPath jsonPath;
-    private static String baseValueFromResponse;
-    private static Map<String, Float> extractRates;
-    private static String date;
 
-    public static void validateRates(Response validatableResponse) {
-        jsonPath = validatableResponse.jsonPath();
-        extractRates = jsonPath.get("rates");
-        assertThat(extractRates).isNotNull();
+
+
+    public static void validateRates(ResponsePojo responsePojo){
+        assertThat(responsePojo.getRates()).isNotNull();
     }
 
-    public static void validateBase(Response validatableResponse, String baseName) {
-        jsonPath = validatableResponse.jsonPath();
-        baseValueFromResponse = jsonPath.get("base");
-        assertThat(baseValueFromResponse).isNotNull();
+    public static void validateBase(ResponsePojo responsePojo,String baseName){
+        assertThat(responsePojo).isNotNull();
         if (baseName.equals("") || baseName.equals(RatesValue.EUR.toString())) {
-            assertThat(baseValueFromResponse.equals(RatesValue.EUR.toString())).isTrue();
+            assertThat(responsePojo.getBase().equals(RatesValue.EUR.toString())).isTrue();
         } else {
-            assertThat(baseValueFromResponse.equals(baseName)).isTrue();
+            assertThat(responsePojo.getBase().equals(baseName)).isTrue();
         }
     }
 
-    public static void validateSymbol(Response validatableResponse, String symbol1) {
-        jsonPath = validatableResponse.jsonPath();
-        extractRates = jsonPath.get("rates");
-        assertThat(extractRates).isNotNull();
-        Iterator<Map.Entry<String, Float>> itr = extractRates.entrySet().iterator();
+    public static void validateSymbol(ResponsePojo responsePojo,String symbol1){
+        assertThat(responsePojo.getRates()).isNotNull();
+        Iterator<Map.Entry<String, Float>> itr = responsePojo.getRates().entrySet().iterator();
         while (itr.hasNext()) {
             Map.Entry<String, Float> entry = itr.next();
             assertThat(entry.getKey().contains(symbol1));
@@ -56,9 +45,7 @@ public class Assertions {
         assertThat(timeInS == timeInMS);
     }
 
-    public static void validateDateInResponse(Response validatableResponse) {
-        jsonPath = validatableResponse.jsonPath();
-        date = jsonPath.get("date");
-        assertThat(date).isNotNull();
+    public static void validateDateInResponse(ResponsePojo responsePojo) {
+        assertThat(responsePojo.getDates()).isNotNull();
     }
 }
